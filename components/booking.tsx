@@ -8,14 +8,14 @@ export default function BookingCard({
   date,
   venue,
   confirmed,
-  setBookings
+  setBookings,
 }: {
   booking: Booking;
   key: number;
   date: Date;
   venue: "Killarney" | "Tralee";
   confirmed: boolean;
-  setBookings : React.Dispatch<React.SetStateAction<Booking[]>>;
+  setBookings: React.Dispatch<React.SetStateAction<Booking[]>>;
 }) {
   async function fetchDaysBookings() {
     const dateasnice =
@@ -48,6 +48,7 @@ export default function BookingCard({
     } else {
       console.log("Booking approved successfully:", data);
       fetchDaysBookings();
+      sendEmail(booking, true);
     }
 
     // Send Email to user saying booking approved
@@ -64,8 +65,24 @@ export default function BookingCard({
     } else {
       console.log("Booking rejected successfully:", data);
       fetchDaysBookings();
+      sendEmail(booking, false);
     }
   }
+
+ 
+
+  async function sendEmail(booking: Booking, approved: boolean) {
+    const res = await fetch("/api/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ booking, approved }),
+    });
+
+    const data: { success: boolean; error?: string } = await res.json();
+
+    alert(data.success ? "Email sent!" : `Failed: ${data.error}`);
+  }
+
   return (
     <div
       key={key}

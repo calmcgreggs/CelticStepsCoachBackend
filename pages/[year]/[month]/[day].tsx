@@ -11,6 +11,8 @@ export default function DatePage() {
   const [venue, setVenue] = useState<"Killarney" | "Tralee">("Killarney");
   const [bookings, setBookings] = useState<Booking[]>([]);
 
+  
+
   const { day, month, year } = router.query;
 
   const [date, setDate] = useState<Date>(new Date());

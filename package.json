@@ -10,15 +10,20 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
+    "fs": "^0.0.1-security",
+    "net": "^1.0.2",
     "next": "15.5.3",
+    "nodemailer": "^7.0.6",
     "react": "19.1.0",
     "react-day-picker": "^9.10.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "tls": "^0.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^7.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "daisyui": "^5.1.12",
