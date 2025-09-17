@@ -1,11 +1,15 @@
-import { get } from "http";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import Booking from "@/types";
+import Link from "next/link";
+import BookingCard from "@/components/booking";
 
 export default function DatePage() {
   const [confirmed, setConfirmed] = useState(false);
   const router = useRouter();
   const [venue, setVenue] = useState<"Killarney" | "Tralee">("Killarney");
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   const { day, month, year } = router.query;
 
@@ -29,6 +33,35 @@ export default function DatePage() {
   useEffect(() => {
     getDateAndFormat();
   }, []);
+
+  useEffect(() => {
+    fetchDaysBookings();
+  }, [date, venue, confirmed]);
+
+  async function fetchDaysBookings() {
+    const dateasnice =
+      date.getFullYear().toString() +
+      "-" +
+      (date.getMonth() + 1).toString().padStart(2, "0") +
+      "-" +
+      date.getDate().toString().padStart(2, "0");
+    const { data, error } = await supabase
+      .from("Bookings")
+      .select()
+      .eq("Date", dateasnice)
+      .eq("Venue", venue)
+      .eq("Approved", confirmed);
+
+    setBookings(data || []);
+    if (error) {
+      console.error("Error fetching data:", error);
+      return;
+    }
+  }
+
+  useEffect(() => {
+    console.log("Bookings for the day:", bookings);
+  }, [bookings]);
   return (
     <div className="min-h-screen bg-blue-900 p-5">
       <h1 className="font-bold text-2xl">
@@ -60,18 +93,47 @@ export default function DatePage() {
           Unconfirmed
         </button>
       </div>
-      <div className="flex flex-row w-fit gap-5 ml-auto [&>*]:my-auto mt-5">
-        <label className="font-bold">Venue:</label>
-        <select
-          onChange={(e) => setVenue(e.target.value as "Killarney" | "Tralee")}
-          value={venue}
-          className="select select-bordered w-full max-w-xs mt-5 "
-        >
-          <option value="Killarney">Celtic Steps the Show : Killarney</option>
-          <option value="Tralee">Celtic Steps the Show : Tralee</option>
-        </select>
+      <div className="flex flex-row w-full gap-5 [&>*]:my-auto mt-5">
+        <div className="font-bold">
+          Total Number of {confirmed ? "Confirmed" : "Unconfirmed"} Guests -{" "}
+          {bookings.reduce(
+            (total, booking) => total + booking.NumberOfGuests,
+            0
+          )}
+        </div>
+        <div className="flex flex-row w-fit gap-5 ml-auto [&>*]:my-auto mt-5">
+          <label className="font-bold">Venue:</label>
+          <select
+            onChange={(e) => setVenue(e.target.value as "Killarney" | "Tralee")}
+            value={venue}
+            className="select select-bordered w-full max-w-xs mt-5 "
+          >
+            <option value="Killarney">Celtic Steps the Show : Killarney</option>
+            <option value="Tralee">Celtic Steps the Show : Tralee</option>
+          </select>
+        </div>
       </div>
-      <div></div>
+      {bookings.length > 0 ? (
+        <div className="flex flex-col">
+          {bookings.map((booking) => (
+            <BookingCard
+              booking={booking}
+              key={booking.id}
+              date={date}
+              venue={venue}
+              confirmed={confirmed}
+              setBookings={setBookings}
+            />
+          ))}
+        </div>
+      ) : (
+        <div>
+          <h1 className="font-bold text-xl text-white mt-5 text-center">
+            No {confirmed ? "Confirmed" : "Unconfirmed"} Bookings for this date
+            or venue
+          </h1>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Booking from "@/types";
+import { DayPicker } from "react-day-picker";
+import { useRouter } from "next/router";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,22 +17,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-type Booking = {
-  id: number;
-  ContactName: string;
-  ContactEmail: string;
-  Venue: string;
-  NumberOfGuests: number;
-  Date: Date;
-  TourCompany: string;
-  Approved: boolean;
-};
-
 export default function Home() {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [date, setDate] = useState<Date | undefined>();
+  const router = useRouter();
 
   useEffect(() => {
-    fetchData();
+    fetchLastFiveBookings();
   }, []);
 
   async function fetchData() {
@@ -56,6 +50,68 @@ export default function Home() {
     setBookings(bookings);
   }
 
+  async function handleApprove(booking: Booking) {
+    const { data, error } = await supabase
+      .from("Bookings")
+      .update({ Approved: true })
+      .eq("id", booking.id)
+      .select();
+    if (error) {
+      console.error("Error approving Booking:", error);
+    } else {
+      console.log("Booking approved successfully:", data);
+      fetchLastFiveBookings();
+    }
+
+    // Send Email to user saying booking approved
+  }
+  async function handleReject(booking: Booking) {
+    // Send Email to user saying booking rejected
+    const { data, error } = await supabase
+      .from("Bookings")
+      .delete()
+      .eq("id", booking.id)
+      .select();
+    if (error) {
+      console.error("Error rejecting Booking:", error);
+    } else {
+      console.log("Booking rejected successfully:", data);
+      fetchLastFiveBookings();
+    }
+  }
+
+  async function fetchLastFiveBookings() {
+    const { data, error } = await supabase
+      .from("Bookings")
+      .select("*")
+      .eq("Approved", false)
+      .order("Timestamp", { ascending: false }) // newest first
+      .limit(5);
+
+    if (error) {
+      console.error(error);
+    } else {
+      if (data.length > 0) {
+        const recentBookings: Booking[] = [];
+        data.forEach((entry) => {
+          recentBookings.push({
+            id: entry.id,
+            ContactName: entry.ContactName,
+            ContactEmail: entry.ContactEmail,
+            Venue: entry.Venue,
+            NumberOfGuests: entry.NumberOfGuests,
+            Date: entry.Date,
+            TourCompany: entry.TourCompany,
+            Approved: entry.Approved,
+          });
+        });
+        setBookings(recentBookings);
+      } else {
+        setBookings([]);
+      }
+    }
+  }
+
   function getNextThreeDaysSkippingSaturday() {
     const result = [];
     let date = new Date();
@@ -78,9 +134,87 @@ export default function Home() {
       <div className="grid grid-rows-2 p-5 gap-5 min-h-[80vh]">
         <div className=" p-5 bg-black/30 isolate  backdrop-blur-md rounded-xl shadow-lg ring-1 ring-white/5 mx-auto w-full h-full">
           <h1 className="font-bold text-sm">Recent Reservations</h1>
+          {bookings.length === 0 && (
+            <h1 className="text-white mt-5 text-2xl text-center">
+              No unconfirmed bookings
+            </h1>
+          )}
+          {bookings.map((booking) => (
+            <div
+              key={booking.id}
+              className="bg-white/10 p-3 my-3 rounded-lg shadow-md flex flex-row justify-between"
+            >
+              <div className="flex flex-row gap-5">
+                <h1 className="font-bold text-sm">
+                  {booking.ContactName} - {booking.Venue} -{" "}
+                  {new Date(booking.Date).toDateString()}
+                </h1>
+                <h1 className="font-bold text-sm">
+                  Tour Company: {booking.TourCompany}
+                </h1>
+                <h1 className="font-bold text-sm">
+                  {booking.NumberOfGuests} Guests
+                </h1>
+              </div>
+              <div
+                id="options"
+                className="float-right flex flex-row gap-5 pr-10 my-auto"
+              >
+                <button
+                  className="btn btn-success h-fit"
+                  onClick={() => handleApprove(booking)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="btn btn-error h-fit"
+                  onClick={() => handleReject(booking)}
+                >
+                  Reject
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
+
         <div className=" p-5 bg-black/30 isolate  backdrop-blur-md rounded-xl shadow-lg ring-1 ring-white/5 mx-auto w-full h-full grid grid-cols-3">
           <h1 className="font-bold text-sm">Calendar</h1>
+          <div id="calendar">
+            <>
+              <button
+                popoverTarget="rdp-popover"
+                className="input input-border"
+                style={{ anchorName: "--rdp" } as React.CSSProperties}
+              >
+                {date ? date.toLocaleDateString() : "Pick a date"}
+              </button>
+              <div
+                popover="auto"
+                id="rdp-popover"
+                className="dropdown"
+                style={{ positionAnchor: "--rdp" } as React.CSSProperties}
+              >
+                <DayPicker
+                  className="react-day-picker"
+                  captionLayout="label"
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  disabled={{ dayOfWeek: [6] }}
+                  onDayClick={(day) => {
+                    router.push(
+                      "/" +
+                        day.getFullYear() +
+                        "/" +
+                        (day.getMonth() + 1) +
+                        "/" +
+                        day.getDate()
+                    );
+                  }}
+                />
+              </div>
+            </>
+          </div>
           <div id="recent-dates" className="grid grid-rows-6 gap-2">
             {getNextThreeDaysSkippingSaturday().map((date, index) => {
               return (
@@ -100,7 +234,6 @@ export default function Home() {
               );
             })}
           </div>
-          <div id="calendar"></div>
         </div>
       </div>
     </div>
