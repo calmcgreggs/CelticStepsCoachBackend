@@ -1,12 +1,11 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
 import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
-import Link from "next/link";
 import Booking from "@/types";
-import { DayPicker } from "react-day-picker";
-import { useRouter } from "next/router";
 import { useUser } from "@clerk/nextjs";
+import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { DayPicker } from "react-day-picker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -130,7 +129,7 @@ export default function Home() {
 
   function getNextThreeDaysSkippingSaturday() {
     const result = [];
-    let date = new Date();
+    const date = new Date();
 
     result.push(new Date(date)); // include today
     while (result.length < 6) {
@@ -337,6 +336,7 @@ export default function Home() {
               {getNextThreeDaysSkippingSaturday().map((date, index) => {
                 return (
                   <Link
+                  key={index}
                     href={
                       date.getFullYear() +
                       "/" +

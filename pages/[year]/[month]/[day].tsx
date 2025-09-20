@@ -1,9 +1,8 @@
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import BookingCard from "@/components/booking";
 import { supabase } from "@/lib/supabase";
 import Booking from "@/types";
-import Link from "next/link";
-import BookingCard from "@/components/booking";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 export default function DatePage() {
   const [confirmed, setConfirmed] = useState(false);

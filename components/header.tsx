@@ -20,7 +20,7 @@ export default function Header() {
                       "/" +
                       (new Date().getMonth() + 1) +
                       "/" +
-                      new Date().getDate()}>Today's Bookings</Link>
+                      new Date().getDate()}>Today&apos;s Bookings</Link>
           </li>
           <li>
             <Link href="/unconfirmed">Unconfirmed Bookings</Link>
