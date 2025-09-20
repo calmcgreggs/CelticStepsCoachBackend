@@ -3,6 +3,8 @@ import { supabase } from "@/lib/supabase";
 import Booking from "@/types";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function DatePage() {
   const [confirmed, setConfirmed] = useState(false);
@@ -27,6 +29,10 @@ export default function DatePage() {
     } catch {
       console.log("Incorrect Date Given");
     }
+  }
+
+  function isntSat(date: Date) {
+    return date.getDay() !== 6;
   }
 
   useEffect(() => {
@@ -73,9 +79,45 @@ export default function DatePage() {
   }, [bookings]);
   return (
     <div className="min-h-screen bg-blue-900 p-5">
-      <h1 className="font-bold text-2xl">
-        {"Bookings for " + date.toDateString()}
-      </h1>
+      <div className="flex flex-row w-">
+        <h1 className="font-bold text-2xl">
+          {"Bookings for " + date.toDateString()}
+        </h1>
+        <div className="flex flex-row gap-5 ml-auto">
+          <h1 className="font-bold text-md my-auto">Select Another Date</h1>
+
+          <div id="calendar" className="mx-auto w-fit ">
+            <DatePicker
+              selected={date}
+              value={
+                date.getFullYear() +
+                "-" +
+                (date.getMonth() + 1).toString().padStart(2, "0") +
+                "-" +
+                date.getDate().toString().padStart(2, "0")
+              }
+              onChange={(d: Date | null) => {
+                router.push(
+                  "/" +
+                    (d ? d.getFullYear() : new Date().getFullYear()) +
+                    "/" +
+                    (d ? d.getMonth() + 1 : new Date().getMonth() + 1) +
+                    "/" +
+                    (d ? d.getDate() : new Date().getDate())
+                );
+                setDate(d || new Date());
+              }}
+              placeholderText="Select a date"
+              minDate={new Date()}
+              maxDate={new Date(new Date().getFullYear(), 9, 17)} // October is month 9 (0-indexed)
+              dateFormat="yyyy-MM-dd"
+              filterDate={isntSat}
+              className="input input-bordered max-w-xs w-fit bg-black"
+              withPortal
+            />
+          </div>
+        </div>
+      </div>
       <div className="grid grid-cols-2 mt-5 bg-white">
         <button
           onClick={() => {

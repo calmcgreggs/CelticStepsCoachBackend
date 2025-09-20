@@ -5,7 +5,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { DayPicker } from "react-day-picker";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -125,6 +126,10 @@ export default function Home() {
         setBookings([]);
       }
     }
+  }
+
+  function isntSat(date: Date) {
+    return date.getDay() !== 6;
   }
 
   function getNextThreeDaysSkippingSaturday() {
@@ -250,44 +255,36 @@ export default function Home() {
         <div className=" p-5 bg-black/30 isolate  backdrop-blur-md rounded-xl shadow-lg ring-1 ring-white/5 mx-auto w-full h-full grid grid-cols-3 [&>*]:border-l-2 [&>*]:border-l-white/20 [&>*]:px-4">
           <div className="flex flex-col gap-10">
             <h1 className="font-bold text-sm text-center underline">
-              Pick a date to view bookings
+              Pick a date below to view bookings
             </h1>
             <div id="calendar" className="mx-auto w-fit ">
-              <>
-                <button
-                  popoverTarget="rdp-popover"
-                  className="input input-border bg-black"
-                  style={{ anchorName: "--rdp" } as React.CSSProperties}
-                >
-                  {date ? date.toLocaleDateString() : "Pick a date"}
-                </button>
-                <div
-                  popover="auto"
-                  id="rdp-popover"
-                  className="dropdown "
-                  style={{ positionAnchor: "--rdp" } as React.CSSProperties}
-                >
-                  <DayPicker
-                    className="react-day-picker"
-                    captionLayout="label"
-                    mode="single"
-                    style={{ backgroundColor: "black" }}
-                    selected={date}
-                    onSelect={setDate}
-                    disabled={{ before: new Date(), dayOfWeek: [6] }}
-                    onDayClick={(day) => {
-                      router.push(
-                        "/" +
-                          day.getFullYear() +
-                          "/" +
-                          (day.getMonth() + 1) +
-                          "/" +
-                          day.getDate()
-                      );
-                    }}
-                  />
-                </div>
-              </>
+              <DatePicker
+                selected={date}
+                value={
+                  new Date().getFullYear() +
+                  "-" +
+                  (new Date().getMonth() + 1).toString().padStart(2, "0") +
+                  "-" +
+                  new Date().getDate().toString().padStart(2, "0")
+                }
+                onChange={(d: Date | null) => {
+                  router.push(
+                    "/" +
+                      (d ? d.getFullYear() : new Date().getFullYear()) +
+                      "/" +
+                      (d ? d.getMonth() + 1 : new Date().getMonth() + 1) +
+                      "/" +
+                      (d ? d.getDate() : new Date().getDate())
+                  );
+                  setDate(d || new Date());
+                }}
+                placeholderText="Select a date"
+                minDate={new Date()}
+                maxDate={new Date(new Date().getFullYear(), 9, 17)} // October is month 9 (0-indexed)
+                dateFormat="yyyy-MM-dd"
+                filterDate={isntSat}
+                className="input input-bordered max-w-xs w-fit bg-black"
+              />
             </div>
           </div>
           <div className="flex flex-col gap-5 text-center">

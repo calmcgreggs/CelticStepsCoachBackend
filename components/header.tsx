@@ -18,6 +18,7 @@ export default function Header() {
             <li className="border-r-2 border-l-2 border-white/20">
               <Link
                 href={
+                  "/" +
                   new Date().getFullYear() +
                   "/" +
                   (new Date().getMonth() + 1) +
