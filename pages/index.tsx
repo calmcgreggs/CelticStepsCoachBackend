@@ -252,11 +252,11 @@ export default function Home() {
             <h1 className="font-bold text-sm text-center underline">
               Pick a date to view bookings
             </h1>
-            <div id="calendar" className="mx-auto w-fit">
+            <div id="calendar" className="mx-auto w-fit ">
               <>
                 <button
                   popoverTarget="rdp-popover"
-                  className="input input-border"
+                  className="input input-border bg-black"
                   style={{ anchorName: "--rdp" } as React.CSSProperties}
                 >
                   {date ? date.toLocaleDateString() : "Pick a date"}
@@ -264,13 +264,14 @@ export default function Home() {
                 <div
                   popover="auto"
                   id="rdp-popover"
-                  className="dropdown"
+                  className="dropdown "
                   style={{ positionAnchor: "--rdp" } as React.CSSProperties}
                 >
                   <DayPicker
                     className="react-day-picker"
                     captionLayout="label"
                     mode="single"
+                    style={{ backgroundColor: "black" }}
                     selected={date}
                     onSelect={setDate}
                     disabled={{ before: new Date(), dayOfWeek: [6] }}
@@ -336,7 +337,7 @@ export default function Home() {
               {getNextThreeDaysSkippingSaturday().map((date, index) => {
                 return (
                   <Link
-                  key={index}
+                    key={index}
                     href={
                       date.getFullYear() +
                       "/" +

@@ -6,7 +6,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
       <Header />
-      <main className="bg-blue-900">{children}</main>
+      <main className="bg-blue-900 text-white">{children}</main>
     </ClerkProvider>
   );
 }

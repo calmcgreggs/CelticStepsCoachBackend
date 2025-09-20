@@ -115,7 +115,7 @@ export default function DatePage() {
           <select
             onChange={(e) => setVenue(e.target.value as "Killarney" | "Tralee")}
             value={venue}
-            className="select select-bordered w-full max-w-xs mt-5 "
+            className="select select-bordered w-full max-w-xs mt-5 bg-black"
           >
             <option value="Killarney">Celtic Steps the Show : Killarney</option>
             <option value="Tralee">Celtic Steps the Show : Tralee</option>
