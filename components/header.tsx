@@ -9,29 +9,34 @@ export default function Header() {
           Celtic Steps Coach Bookings
         </Link>
       </div>
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
-          <li>
-            <Link href="/">Home</Link>
-          </li>
-          <li className="border-r-2 border-l-2 border-white/20">
-            <Link href={
-                      new Date().getFullYear() +
-                      "/" +
-                      (new Date().getMonth() + 1) +
-                      "/" +
-                      new Date().getDate()}>Today&apos;s Bookings</Link>
-          </li>
-          <li>
-            <Link href="/unconfirmed">Unconfirmed Bookings</Link>
-          </li>
-        </ul>
-      </div>
-      <div className="navbar-end">
-        <SignedIn>
+      <SignedIn>
+        <div className="navbar-center hidden lg:flex">
+          <ul className="menu menu-horizontal px-1">
+            <li>
+              <Link href="/">Home</Link>
+            </li>
+            <li className="border-r-2 border-l-2 border-white/20">
+              <Link
+                href={
+                  new Date().getFullYear() +
+                  "/" +
+                  (new Date().getMonth() + 1) +
+                  "/" +
+                  new Date().getDate()
+                }
+              >
+                Today&apos;s Bookings
+              </Link>
+            </li>
+            <li>
+              <Link href="/unconfirmed">Unconfirmed Bookings</Link>
+            </li>
+          </ul>
+        </div>
+        <div className="navbar-end">
           <UserButton />
-        </SignedIn>
-      </div>
+        </div>
+      </SignedIn>
     </div>
   );
 }
