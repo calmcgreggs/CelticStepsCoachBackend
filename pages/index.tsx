@@ -6,6 +6,7 @@ import Link from "next/link";
 import Booking from "@/types";
 import { DayPicker } from "react-day-picker";
 import { useRouter } from "next/router";
+import { useUser } from "@clerk/nextjs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +27,17 @@ export default function Home() {
   useEffect(() => {
     fetchLastFiveBookings();
     getTodaysBookings();
+    const channel = supabase
+      .channel("realtime:messages")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Bookings" },
+        (payload) => {
+          fetchLastFiveBookings();
+          getTodaysBookings();
+        }
+      )
+      .subscribe();
   }, []);
 
   async function fetchData() {
@@ -173,12 +185,26 @@ export default function Home() {
     alert(data.success ? "Email sent!" : `Failed: ${data.error}`);
   }
 
+  const { user } = useUser();
+
+  if (!user) {
+    return (
+      <div className="min-h-screen relative flex-col">
+        <div className=" absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <span className="loading loading-bars loading-xl"></span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-blue-900 p-5">
-      <h1 className="font-bold text-xl">Welcome, Annette!</h1>
+      <h1 className="font-bold text-xl">Welcome, {user.firstName}!</h1>
       <div className="grid grid-rows-2 p-5 gap-5 min-h-[80vh]">
         <div className=" p-5 bg-black/30 isolate  backdrop-blur-md rounded-xl shadow-lg ring-1 ring-white/5 mx-auto w-full h-full">
-          <h1 className="font-bold text-sm underline">Recent Reservations</h1>
+          <Link href="/unconfirmed">
+            <h1 className="font-bold text-sm underline">Recent Reservations</h1>
+          </Link>
           {bookings.length === 0 && (
             <h1 className="text-white mt-5 text-2xl text-center">
               No unconfirmed bookings
@@ -222,7 +248,7 @@ export default function Home() {
           ))}
         </div>
 
-        <div className=" p-5 bg-black/30 isolate  backdrop-blur-md rounded-xl shadow-lg ring-1 ring-white/5 mx-auto w-full h-full grid grid-cols-3">
+        <div className=" p-5 bg-black/30 isolate  backdrop-blur-md rounded-xl shadow-lg ring-1 ring-white/5 mx-auto w-full h-full grid grid-cols-3 [&>*]:border-l-2 [&>*]:border-l-white/20 [&>*]:px-4">
           <div className="flex flex-col gap-10">
             <h1 className="font-bold text-sm text-center underline">
               Pick a date to view bookings
@@ -248,7 +274,7 @@ export default function Home() {
                     mode="single"
                     selected={date}
                     onSelect={setDate}
-                    disabled={{ dayOfWeek: [6] }}
+                    disabled={{ before: new Date(), dayOfWeek: [6] }}
                     onDayClick={(day) => {
                       router.push(
                         "/" +
@@ -266,7 +292,7 @@ export default function Home() {
           </div>
           <div className="flex flex-col gap-5 text-center">
             <h1 className="font-bold text-sm text-center mb-10 underline">
-              Your Day At A Glance
+              Today At A Glance
             </h1>
             <div className="p-5 mx-auto bg-black flex flex-col gap-5 rounded-xl text-white">
               <h1 className=" text-sm">
@@ -303,7 +329,7 @@ export default function Home() {
               </h1>
             </div>
           </div>
-          <div className="flex flex-col gap-5 text-center">
+          <div className="flex flex-col gap-5 text-center border-r-2 border-r-white/20">
             <h1 className="font-bold text-sm text-center mb-0 underline">
               Quick Select A Date
             </h1>

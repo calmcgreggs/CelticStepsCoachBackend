@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.32.0",
     "@supabase/supabase-js": "^2.57.4",
     "fs": "^0.0.1-security",
     "net": "^1.0.2",

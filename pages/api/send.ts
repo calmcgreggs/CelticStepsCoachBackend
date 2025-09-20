@@ -51,7 +51,7 @@ export default async function handler(
             booking.id +
             ". Doors open at 7:45pm for an 8:30pm show. Please arrive as early as possible to ensure timely entry."
           : "rejected due to insufficient capacity. If you would like more information, please contact the Box Office.") +
-        ".</p> <br /> <p>Thank you for choosing Celtic Steps Coach Bookings.</p> <br /> <p>Best Regards,</p> <p>Celtic Steps Coach Bookings Team</p>",
+        "</p> <br /> <p>Thank you for choosing Celtic Steps Coach Bookings.</p> <br /> <p>Best Regards,</p> <p>Celtic Steps Coach Bookings Team</p>",
     });
 
     return res.status(200).json({ success: true });

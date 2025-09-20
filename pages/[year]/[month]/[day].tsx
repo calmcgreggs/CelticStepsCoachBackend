@@ -11,8 +11,6 @@ export default function DatePage() {
   const [venue, setVenue] = useState<"Killarney" | "Tralee">("Killarney");
   const [bookings, setBookings] = useState<Booking[]>([]);
 
-  
-
   const { day, month, year } = router.query;
 
   const [date, setDate] = useState<Date>(new Date());
@@ -34,6 +32,16 @@ export default function DatePage() {
 
   useEffect(() => {
     getDateAndFormat();
+    const channel = supabase
+      .channel("realtime:messages")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Bookings" },
+        (payload) => {
+          fetchDaysBookings();
+        }
+      )
+      .subscribe();
   }, []);
 
   useEffect(() => {
