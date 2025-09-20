@@ -1,6 +1,4 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-import { geolocation } from "@vercel/functions";
 
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)"]);
 
